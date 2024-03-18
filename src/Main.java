@@ -106,13 +106,13 @@ public class Main {
     public static void imprime_stats (int[] espera) {
         int[] tempo_espera = espera.clone();
         //Implementar o calculo e impressão de estatisticas
-        int tempo_espera_total = 0;
+        double tempo_espera_total = 0;
 
         for (int i=0; i<n_processos; i++){
-            // System.out.println("Processo ["+i+"]: tempo_espera="+);   VER ESSSA LINHHA NO CODIGO DO PROFE
+            System.out.println("Processo ["+i+"]: tempo_espera="+tempo_espera[i]);
             tempo_espera_total += tempo_espera[i];
         }
-
+        System.out.println("Tempo médio de espera: "+(tempo_espera_total/n_processos));
     }
 
     public static void FCFS(int[] execucao, int[] espera, int[] restante){
