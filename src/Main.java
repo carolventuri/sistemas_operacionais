@@ -1,3 +1,4 @@
+import java.sql.SQLOutput;
 import java.util.Scanner;
 import java.util.Random;
 public class Main {
@@ -16,17 +17,18 @@ public class Main {
 
         Scanner teclado = new Scanner (System.in);
 
-
         popular_processos(tempo_execucao, tempo_espera, tempo_restante, tempo_chegada, prioridade);
 
         imprime_processos(tempo_execucao, tempo_espera, tempo_restante, tempo_chegada, prioridade);
 
         //Escolher algoritmo
         int alg;
+        boolean continuarExecucao = true;
 
-        while(true) {
+        while(continuarExecucao) {
             System.out.println();
-            System.out.println("Menu:");
+            System.out.println("**********************************");
+            System.out.println("            Menu:");
             System.out.println();
             System.out.println ("1 = Algoritmo FCFS");
             System.out.println ("2 = Algoritmo SJF Preemptivo");
@@ -42,38 +44,38 @@ public class Main {
             System.out.println("Escolha um número entre as opções do menu:");
             alg =  teclado.nextInt();
 
-
-            if (alg == 1) { //FCFS
-                FCFS(tempo_execucao, tempo_espera, tempo_restante);
-            }
-            else if (alg == 2) { //SJF PREEMPTIVO
-                SJF(true, tempo_execucao, tempo_espera, tempo_restante, tempo_chegada);
-            }
-            else if (alg == 3) { //SJF NÃO PREEMPTIVO
-                SJF(false, tempo_execucao, tempo_espera, tempo_restante, tempo_chegada);
-
-            }
-            else if (alg == 4) { //PRIORIDADE PREEMPTIVO
-                PRIORIDADE(true, tempo_execucao, tempo_espera, tempo_restante, tempo_chegada, prioridade);
-            }
-            else if (alg == 5) { //PRIORIDADE NÃO PREEMPTIVO
-                PRIORIDADE(false, tempo_execucao, tempo_espera, tempo_restante, tempo_chegada, prioridade);
-
-            }
-            else if (alg == 6) { //Round_Robin
-                Round_Robin(tempo_execucao, tempo_espera, tempo_restante);
-
-            }
-            else if (alg == 7) { //IMPRIME CONTEÚDO INICIAL DOS PROCESSOS
-                imprime_processos(tempo_execucao, tempo_espera, tempo_restante, tempo_chegada, prioridade);
-            }
-            else if (alg == 8) { //REATRIBUI VALORES INICIAIS
-                popular_processos(tempo_execucao, tempo_espera, tempo_restante, tempo_chegada, prioridade);
-                imprime_processos(tempo_execucao, tempo_espera, tempo_restante, tempo_chegada, prioridade);
-            }
-            else if (alg == 9) {
-                break;
-
+            switch (alg) {
+                case 1:
+                    FCFS(tempo_execucao, tempo_espera, tempo_restante);
+                    break;
+                case 2:
+                    SJF(true, tempo_execucao, tempo_espera, tempo_restante, tempo_chegada);
+                    break;
+                case 3:
+                    SJF(false, tempo_execucao, tempo_espera, tempo_restante, tempo_chegada);
+                    break;
+                case 4:
+                    PRIORIDADE(true, tempo_execucao, tempo_espera, tempo_restante, tempo_chegada, prioridade);
+                    break;
+                case 5:
+                    PRIORIDADE(false, tempo_execucao, tempo_espera, tempo_restante, tempo_chegada, prioridade);
+                    break;
+                case 6:
+                    Round_Robin(tempo_execucao, tempo_espera, tempo_restante);
+                    break;
+                case 7:
+                    imprime_processos(tempo_execucao, tempo_espera, tempo_restante, tempo_chegada, prioridade);
+                    break;
+                case 8:
+                    popular_processos(tempo_execucao, tempo_espera, tempo_restante, tempo_chegada, prioridade);
+                    imprime_processos(tempo_execucao, tempo_espera, tempo_restante, tempo_chegada, prioridade);
+                    break;
+                case 9:
+                    continuarExecucao = false;
+                    System.out.print ("Até logo!");
+                    break;
+                default:
+                    System.out.print("Opção inválida. Digite um número entre 1 e 9");
             }
         }
     }
@@ -125,22 +127,25 @@ public class Main {
         System.out.println("Tempo médio de espera: "+(tempo_espera_total/n_processos));
     }
 
+
     public static void FCFS(int[] execucao, int[] espera, int[] restante){
         //clones dos parâmetros de entrada, para não alterar os valores do vetor inicial
+        System.out.println("Execução do algoritmo FCFS: ");
+        System.out.println();
         int[] tempo_execucao = execucao.clone();
         int[] tempo_espera = espera.clone();
         int[] tempo_restante = restante.clone();
         int processo_em_execucao = 0; //processo inicial no FCFS é sempre zero
 
         //implementar código do FCFS:
-        for (int i=0; i<MAXIMO_TEMPO_EXECUCAO; i++){
+        for (int i=1; i<MAXIMO_TEMPO_EXECUCAO; i++){
             System.out.println ("tempo["+i+"]: processo["+processo_em_execucao+"] restante="+tempo_restante[processo_em_execucao]);
 
             if (tempo_execucao[processo_em_execucao]==tempo_restante [processo_em_execucao]){ //acabou de começar a ser executado
-                tempo_espera[processo_em_execucao] = i-1; //tempo anterior
+                    tempo_espera[processo_em_execucao] = i-1; //tempo anterior
             }
 
-            if (tempo_restante [processo_em_execucao] ==1){ //processo foi concluído
+            if (tempo_restante [processo_em_execucao] == 1){ //processo foi concluído
                 if (processo_em_execucao == (n_processos-1)){ //se o processo é o último, finaliza algoritmo
                     break;
                 }
@@ -152,6 +157,9 @@ public class Main {
                 tempo_restante [processo_em_execucao]--; //o tempo restante do processo em execução é reduzido em uma unidade""
             }
         }
+        System.out.println();
+        System.out.println("Estatísticas do tempo de espera:");
+        System.out.println();
         imprime_stats(tempo_espera);
     }
 
@@ -161,10 +169,12 @@ public class Main {
         int[] tempo_restante = restante.clone();
         int[] tempo_chegada = chegada.clone();
 
+
         //implementar código do SJF preemptivo e não preemptivo
         //...
         //
-
+        System.out.println();
+        System.out.println("Estatísticas do tempo de espera:");
         imprime_stats(tempo_espera);
 
     }
