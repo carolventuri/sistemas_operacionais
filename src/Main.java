@@ -169,64 +169,68 @@ public class Main {
         int[] tempo_espera = espera.clone();
         int[] tempo_restante = restante.clone();
         int[] tempo_chegada = chegada.clone();
+        int[] ordem_processos = new int[n_processos]; // Array para armazenar a ordem dos processos
 
+        int tempo_atual = 0;
+        int processos_finalizados = 0;
 
-        // Ordena os processos pelo tempo de chegada
-        for (int i = 0; i < n_processos-1; i++) {
-            for (int j = i + 1; j < n_processos; j++) {
-                if (tempo_chegada[i] > tempo_chegada[j]) {
+        while (processos_finalizados < n_processos) {
+            int menor_tempo_execucao = MAXIMO_TEMPO_EXECUCAO;
+            int processo_menor_tempo = -1;
 
-                    // Troca os tempos de chegada
-                    int temp = tempo_chegada[i];
-                    tempo_chegada[i] = tempo_chegada[j];
-                    tempo_chegada[j] = temp;
-
-                    // Troca os tempos de execução
-                    temp = tempo_execucao[i];
-                    tempo_execucao[i] = tempo_execucao[j];
-                    tempo_execucao[j] = temp;
-
-                    // Troca os tempos de espera
-                    temp = tempo_espera[i];
-                    tempo_espera[i] = tempo_espera[j];
-                    tempo_espera[j] = temp;
+            for (int i = 0; i < n_processos; i++) { //verificar se o processo já chegou e ele tem o menor tempo de execução (medido pelo tempo restante)
+                if (tempo_chegada[i] <= tempo_atual && tempo_restante[i] < menor_tempo_execucao && tempo_restante[i] > 0) {
+                    menor_tempo_execucao = tempo_restante[i];
+                    processo_menor_tempo = i; //define o processo que nessa iteração está com o menor tempo para ser executado
                 }
             }
-        }
-        if (preemptivo){
-            int tempo_atual = 0;
-            int processos_restantes = n_processos;
 
-            for (tempo_atual = 0; processos_restantes > 0; tempo_atual++) { //faz a contagem do tempo
+            if (processo_menor_tempo != -1) {
+                ordem_processos[processos_finalizados] = processo_menor_tempo; // atribui no vetor o processo que será executado
 
-                int menor_tempo_execucao = MAXIMO_TEMPO_EXECUCAO;
-                int processo_menor_tempo = 0;
+                if (preemptivo) {
+                    tempo_restante[processo_menor_tempo]--;
 
-                for (int i = 0; i < n_processos; i++) { //verifica qual o processo tem menor tempo de execução
-                    if (tempo_chegada[i] <= tempo_atual && tempo_execucao[i] > 0) { //se o processo com menor tempo de chegada é enor que o tempo atual e seu tempo de execução é maior que zero
-                        if (tempo_execucao[i] < menor_tempo_execucao) {
-                            menor_tempo_execucao = tempo_execucao[i];
-                            processo_menor_tempo = i;
+                    if (tempo_restante[processo_menor_tempo] == 0) { //se o processo está sendo finalizado, incrementa a variável processos finalizados
+                        processos_finalizados++;
+                        //calcula tempo espera e volta para o loop para executar o próximo processo
+                        int tempo_espera_processo = tempo_atual - tempo_execucao[processo_menor_tempo] - tempo_chegada[processo_menor_tempo] + 1;
+                        if (tempo_espera_processo > 0) {
+                            tempo_espera[processo_menor_tempo] = tempo_espera_processo;
+                        } else {
+                            tempo_espera[processo_menor_tempo] = 0;
                         }
                     }
-                }
-                // Executa o processo com menor tempo de execução
-                int processo_em_execucao = processo_menor_tempo;
-                tempo_execucao[processo_em_execucao] = tempo_restante[processo_em_execucao];
-                tempo_espera[processo_em_execucao] = tempo_atual - tempo_chegada[processo_em_execucao];
+                } else { //não preemptivo
 
-                System.out.println("tempo[" + tempo_atual + "]: processo[" + processo_em_execucao + "] restante=" + tempo_restante[processo_em_execucao]);
-                tempo_execucao[processo_em_execucao]--;
-                tempo_restante[processo_em_execucao]--;
+                    int tempo_execucao_processo = tempo_execucao[processo_menor_tempo];
+                    tempo_atual += tempo_execucao_processo;
+                    processos_finalizados++;
 
-                // Verifica se o processo foi concluído, diminui os processos restantes e calcula o tempo de espera
-                if (tempo_execucao[processo_em_execucao] == 0) {
-                    processos_restantes--;
+
+                    int tempo_espera_processo = tempo_atual - tempo_execucao_processo - tempo_chegada[processo_menor_tempo];
+                    if (tempo_espera_processo > 0) {
+                        tempo_espera[processo_menor_tempo] = tempo_espera_processo;
+                    } else {
+                        tempo_espera[processo_menor_tempo] = 0;
+                    }
+
+                    tempo_restante[processo_menor_tempo] = 0;
                 }
+                // Impressão do processamento tempo por tempo
+                System.out.println("\ntempo[" + tempo_atual + "]: processo[" + processo_menor_tempo + "] restante=" + tempo_restante[processo_menor_tempo]);
+
+            }else { //se ainda não há processos na fila, ou seja, o processo_menor_tempo continua sendo -1
+                System.out.println("\ntempo[" + tempo_atual + "]: nenhum processo está concluído");
             }
+            tempo_atual++;
+        }
+        System.out.println();
+        System.out.println("Estatísticas do tempo de espera:");
+        imprime_stats(tempo_espera);
+    }
 
-
-        }else{ //não preemptivo
+/*
             int tempo_atual = 0;
             for (int i = 0; i < n_processos; i++) {
                 // Verifica se o próximo processo está pronto para execução
@@ -243,7 +247,7 @@ public class Main {
         System.out.println("Estatísticas do tempo de espera:");
         imprime_stats(tempo_espera);
 
-    }
+    }*/
 
     public static void PRIORIDADE(boolean preemptivo, int[] execucao, int[] espera, int[] restante, int[] chegada, int[] prioridade){
         int[] tempo_execucao = execucao.clone();
