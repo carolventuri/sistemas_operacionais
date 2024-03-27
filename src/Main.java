@@ -1,10 +1,10 @@
-import java.sql.SQLOutput;
 import java.util.Scanner;
 import java.util.Random;
 public class Main {
 
     static int MAXIMO_TEMPO_EXECUCAO = 65535;
     static int n_processos = 3; //é preciso definir o número de processos pois ele será o número de posições do vetor
+
 
     public static void main(String[] args) {
 
@@ -13,6 +13,7 @@ public class Main {
         int[] prioridade = new int[n_processos];
         int[] tempo_espera = new int[n_processos];
         int[] tempo_restante = new int[n_processos]; //vetor auxiliar para armazenar o tempo restante de cada processo ==vai decrementando do tempo de execução
+        int[] processos = new int [n_processos];
 
 
         Scanner teclado = new Scanner (System.in);
@@ -170,9 +171,74 @@ public class Main {
         int[] tempo_chegada = chegada.clone();
 
 
-        //implementar código do SJF preemptivo e não preemptivo
-        //...
-        //
+        // Ordena os processos pelo tempo de chegada
+        for (int i = 0; i < n_processos-1; i++) {
+            for (int j = i + 1; j < n_processos; j++) {
+                if (tempo_chegada[i] > tempo_chegada[j]) {
+
+                    // Troca os tempos de chegada
+                    int temp = tempo_chegada[i];
+                    tempo_chegada[i] = tempo_chegada[j];
+                    tempo_chegada[j] = temp;
+
+                    // Troca os tempos de execução
+                    temp = tempo_execucao[i];
+                    tempo_execucao[i] = tempo_execucao[j];
+                    tempo_execucao[j] = temp;
+
+                    // Troca os tempos de espera
+                    temp = tempo_espera[i];
+                    tempo_espera[i] = tempo_espera[j];
+                    tempo_espera[j] = temp;
+                }
+            }
+        }
+        if (preemptivo){
+            int tempo_atual = 0;
+            int processos_restantes = n_processos;
+
+            for (tempo_atual = 0; processos_restantes > 0; tempo_atual++) { //faz a contagem do tempo
+
+                int menor_tempo_execucao = MAXIMO_TEMPO_EXECUCAO;
+                int processo_menor_tempo = 0;
+
+                for (int i = 0; i < n_processos; i++) { //verifica qual o processo tem menor tempo de execução
+                    if (tempo_chegada[i] <= tempo_atual && tempo_execucao[i] > 0) { //se o processo com menor tempo de chegada é enor que o tempo atual e seu tempo de execução é maior que zero
+                        if (tempo_execucao[i] < menor_tempo_execucao) {
+                            menor_tempo_execucao = tempo_execucao[i];
+                            processo_menor_tempo = i;
+                        }
+                    }
+                }
+                // Executa o processo com menor tempo de execução
+                int processo_em_execucao = processo_menor_tempo;
+                tempo_execucao[processo_em_execucao] = tempo_restante[processo_em_execucao];
+                tempo_espera[processo_em_execucao] = tempo_atual - tempo_chegada[processo_em_execucao];
+
+                System.out.println("tempo[" + tempo_atual + "]: processo[" + processo_em_execucao + "] restante=" + tempo_restante[processo_em_execucao]);
+                tempo_execucao[processo_em_execucao]--;
+                tempo_restante[processo_em_execucao]--;
+
+                // Verifica se o processo foi concluído, diminui os processos restantes e calcula o tempo de espera
+                if (tempo_execucao[processo_em_execucao] == 0) {
+                    processos_restantes--;
+                }
+            }
+
+
+        }else{ //não preemptivo
+            int tempo_atual = 0;
+            for (int i = 0; i < n_processos; i++) {
+                // Verifica se o próximo processo está pronto para execução
+                if (tempo_chegada[i] > tempo_atual) {
+                    tempo_atual = tempo_chegada[i]; // Avança o tempo até o próximo processo estar pronto
+                }
+                // Executa o próximo processo
+                System.out.println("Tempo " + tempo_atual + ": Executando processo " +i+ ", Tempo de Execução: " + tempo_execucao[i]);
+                tempo_atual += tempo_execucao[i]; // Avança o tempo após a execução do processo
+            }
+        }
+
         System.out.println();
         System.out.println("Estatísticas do tempo de espera:");
         imprime_stats(tempo_espera);
