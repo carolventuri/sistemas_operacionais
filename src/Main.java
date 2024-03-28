@@ -171,8 +171,11 @@ public class Main {
         int[] tempo_chegada = chegada.clone();
         int[] ordem_processos = new int[n_processos]; // Array para armazenar a ordem dos processos
 
+
         int tempo_atual = 0;
         int processos_finalizados = 0;
+        int tempoTotal = 0; // Tempo total de execução
+
 
         while (processos_finalizados < n_processos) {
             int menor_tempo_execucao = MAXIMO_TEMPO_EXECUCAO;
@@ -202,18 +205,12 @@ public class Main {
                         }
                     }
                 } else { //não preemptivo
-
                     int tempo_execucao_processo = tempo_execucao[processo_menor_tempo];
                     tempo_atual += tempo_execucao_processo;
                     processos_finalizados++;
 
-
                     int tempo_espera_processo = tempo_atual - tempo_execucao_processo - tempo_chegada[processo_menor_tempo];
-                    if (tempo_espera_processo > 0) {
-                        tempo_espera[processo_menor_tempo] = tempo_espera_processo;
-                    } else {
-                        tempo_espera[processo_menor_tempo] = 0;
-                    }
+                    tempo_espera[processo_menor_tempo] = tempo_espera_processo > 0 ? tempo_espera_processo : 0;
 
                     tempo_restante[processo_menor_tempo] = 0;
                 }
@@ -229,25 +226,6 @@ public class Main {
         System.out.println("Estatísticas do tempo de espera:");
         imprime_stats(tempo_espera);
     }
-
-/*
-            int tempo_atual = 0;
-            for (int i = 0; i < n_processos; i++) {
-                // Verifica se o próximo processo está pronto para execução
-                if (tempo_chegada[i] > tempo_atual) {
-                    tempo_atual = tempo_chegada[i]; // Avança o tempo até o próximo processo estar pronto
-                }
-                // Executa o próximo processo
-                System.out.println("Tempo " + tempo_atual + ": Executando processo " +i+ ", Tempo de Execução: " + tempo_execucao[i]);
-                tempo_atual += tempo_execucao[i]; // Avança o tempo após a execução do processo
-            }
-        }
-
-        System.out.println();
-        System.out.println("Estatísticas do tempo de espera:");
-        imprime_stats(tempo_espera);
-
-    }*/
 
     public static void PRIORIDADE(boolean preemptivo, int[] execucao, int[] espera, int[] restante, int[] chegada, int[] prioridade){
         int[] tempo_execucao = execucao.clone();
