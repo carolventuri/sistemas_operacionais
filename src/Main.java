@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Main {
 
     static int MAXIMO_TEMPO_EXECUCAO = 655;
+
     static ArrayList<Processo> n_processos = new ArrayList<>(3);
 
 
@@ -41,21 +42,33 @@ public class Main {
 
             switch (alg) {
                 case 1:
+                    System.out.println("Execução do algoritmo FCFS: ");
+                    System.out.println();
                     FCFS();
                     break;
                 case 2:
+                    System.out.println("Execução do algoritmo SJF Preemptivo: ");
+                    System.out.println();
                     SJF(true);
                     break;
                 case 3:
+                    System.out.println("Execução do algoritmo SJF Não-Preemptivo: ");
+                    System.out.println();
                     SJF(false);
                     break;
                 case 4:
+                    System.out.println("Execução do algoritmo Prioridade Preemptivo: ");
+                    System.out.println();
                     PRIORIDADE(true);
                     break;
                 case 5:
+                    System.out.println("Execução do algoritmo Prioridade Não-Preemptivo: ");
+                    System.out.println();
                     PRIORIDADE(false);
                     break;
                 case 6:
+                    System.out.println("Execução do algoritmo Round Robin: ");
+                    System.out.println();
                     Round_Robin();
                     break;
                 case 7:
@@ -76,6 +89,7 @@ public class Main {
     }
 
     public static void popular_processos() {
+        n_processos.clear();
         Random random = new Random();
         Scanner teclado = new Scanner(System.in);
         int aleatorio;
@@ -83,11 +97,14 @@ public class Main {
         System.out.println("A população de processos erá aleatória? 1 = sim, 2 = não");
 
         aleatorio = teclado.nextInt();
-
+        int z = 0;
         for (int i = 0; i < 3; i++) {
             //Popular Processos Aleatorio
             if (aleatorio == 1) {
                 n_processos.add(new Processo(random.nextInt(10) + 1, random.nextInt(10) + 1, random.nextInt(15) + 1));
+                n_processos.get(i).setid(z);
+                z++;
+
             }
             //Popular Processos Manual
             else {
@@ -105,7 +122,7 @@ public class Main {
     public static void imprime_processos() {
         //Imprime lista de processos
         for (int i = 0; i < n_processos.size(); i++) {
-            System.out.println("Processo[" + i + "]: tempo_execucao=" + n_processos.get(i).tempo_execucao + " tempo_restante=" + n_processos.get(i).tempo_restante + " tempo_chegada=" + n_processos.get(i).tempo_chegada + " prioridade =" + n_processos.get(i).prioridade);
+            System.out.println("Processo[" + n_processos.get(i).id + "]: tempo_execucao=" + n_processos.get(i).tempo_execucao + " tempo_restante=" + n_processos.get(i).tempo_restante + " tempo_chegada=" + n_processos.get(i).tempo_chegada + " prioridade =" + n_processos.get(i).prioridade);
         }
     }
 
@@ -113,7 +130,7 @@ public class Main {
         double tempo_espera_total = 0;
 
         for (int i = 0; i < cloneProcessos.size(); i++) {
-            System.out.println("Processo [" + i + "]: tempo_espera=" + cloneProcessos.get(i).tempo_espera);
+            System.out.println("Processo [" + cloneProcessos.get(i).id + "]: tempo_espera=" + cloneProcessos.get(i).tempo_espera);
             tempo_espera_total += cloneProcessos.get(i).tempo_espera;
         }
         System.out.println("Tempo médio de espera: " + (tempo_espera_total / cloneProcessos.size()));
@@ -159,63 +176,88 @@ public class Main {
     }
 
     public static void SJF(boolean preemptivo) {
+
         ArrayList <Processo> cloneProcessos2 = (ArrayList)n_processos.clone(); //fiz um clone do Arraylist de processos
+
         int processos_restantes = n_processos.size();
+        boolean processo_em_execucao = false;
+        int indice_processo_execucao = 0;
+        boolean chegou_processo = true;
+        int ultimoprocesso = -1;
 
         for (int tempo_atual = 1; processos_restantes > 0; tempo_atual++) { //faz a contagem do tempo
 
-
             int menor_tempo_execucao = MAXIMO_TEMPO_EXECUCAO;
-            int indice_processo_menor_tempo = -1;
-            int tempo_inicio_execucao = 0;
 
             if (preemptivo) {
                 //verifica se o processo já chegou encontra o processo com o menor tempo de execução (calculado pelo tempo restante)
                 for (int k = 0; k < cloneProcessos2.size(); k++) { //percorre a lista de processos
                     if (cloneProcessos2.get(k).tempo_chegada <= tempo_atual && cloneProcessos2.get(k).tempo_restante < menor_tempo_execucao && cloneProcessos2.get(k).tempo_restante > 0) { //verifica  se o processo já chegou
                         menor_tempo_execucao = cloneProcessos2.get(k).tempo_restante;
-                        indice_processo_menor_tempo = k;
+                        indice_processo_execucao = k;
+                        processo_em_execucao = true;
                     }
                 }
             }else{ //não-preemptivo
-                //verifica o processo que já chegou e com menor tempo execução
+                // ordenar os processos por menor tempo de chegada
+                for (int k = 0; k < cloneProcessos2.size() - 1; k++) { //percorre a lista de processos
+                    for (int l = 0; l < cloneProcessos2.size() - k - 1; l++) {
+                        if (cloneProcessos2.get(l).tempo_chegada > cloneProcessos2.get(l + 1).tempo_chegada) {
+                            Processo temp = cloneProcessos2.get(l);
+                            cloneProcessos2.set(l, cloneProcessos2.get(l + 1));
+                            cloneProcessos2.set(l + 1, temp);
+                        }
+                    }
+                }
+                //se o tempo de chegada é igual, ordena por menor tempo de execução
+                for (int k = 0; k < cloneProcessos2.size() - 1; k++) { //percorre a lista de processos
+                    for (int l = 0; l < cloneProcessos2.size() - k - 1; l++) {
+                        if (cloneProcessos2.get(l).tempo_chegada == cloneProcessos2.get(l + 1).tempo_chegada && cloneProcessos2.get(l).tempo_execucao > cloneProcessos2.get(l + 1).tempo_execucao) {
+                            Processo temp = cloneProcessos2.get(l);
+                            cloneProcessos2.set(l, cloneProcessos2.get(l + 1));
+                            cloneProcessos2.set(l + 1, temp);
+                        }
+                    }
+                }
+                //executa o primeiro processo que chegou (inicializei o indice_processo_execucao =0
+                if (cloneProcessos2.get(indice_processo_execucao).tempo_chegada <= tempo_atual && cloneProcessos2.get(indice_processo_execucao).tempo_restante > 0 ){
+                    processo_em_execucao = true;
+                }
+                //para executar os processsos na ordem sem interrupcao
                 for (int k = 0; k < cloneProcessos2.size(); k++) { //percorre a lista de processos
-                    if (cloneProcessos2.get(k).tempo_chegada <= tempo_atual && cloneProcessos2.get(k).tempo_execucao < menor_tempo_execucao && cloneProcessos2.get(k).tempo_restante > 0) { //verifica  se o processo já chegou
-                        menor_tempo_execucao = cloneProcessos2.get(k).tempo_execucao;
-                        indice_processo_menor_tempo = k;
+                    if (cloneProcessos2.get(k).tempo_chegada <= tempo_atual && cloneProcessos2.get(k).tempo_restante > 0 && cloneProcessos2.get(indice_processo_execucao).tempo_restante == 0) {
+                        indice_processo_execucao = k;
+                        processo_em_execucao = true;
+                        break;
                     }
                 }
             }
 
             //se o primeiro processo a ser processado ainda não chegou
-            if (indice_processo_menor_tempo == -1) {
+            if (processo_em_execucao == false) {
                 System.out.println("tempo[" + tempo_atual + "]: nenhum processo está pronto");
 
             } else {
                 // Executa o processo com menor tempo de execução e diminui uma unidade de tempo restante
-                int tempo_execucao_processo = cloneProcessos2.get(indice_processo_menor_tempo).tempo_execucao;
-                int tempo_restante_processo = cloneProcessos2.get(indice_processo_menor_tempo).tempo_restante;
-                int tempo_espera_processo = cloneProcessos2.get(indice_processo_menor_tempo).tempo_espera;
-                int tempo_chegada_processo = cloneProcessos2.get(indice_processo_menor_tempo).tempo_chegada;
+                System.out.println("tempo[" + tempo_atual + "]: processo[" + cloneProcessos2.get(indice_processo_execucao).id + "] restante=" + cloneProcessos2.get(indice_processo_execucao).tempo_restante);
 
-                tempo_restante_processo--;
-                System.out.println("tempo[" + tempo_atual + "]: processo[" + indice_processo_menor_tempo + "] restante=" + tempo_restante_processo);
-                cloneProcessos2.get(indice_processo_menor_tempo).tempo_restante = tempo_restante_processo;
-
+                cloneProcessos2.get(indice_processo_execucao).tempo_restante -= 1;
 
                 // calcular o tempo de espera
-                if (tempo_execucao_processo == tempo_restante_processo){ //quando o processo começa a ser processado (para o sjf não preemptivo)
-                    tempo_espera_processo = tempo_atual - tempo_chegada_processo;
-                    tempo_inicio_execucao = tempo_espera_processo; //guardei o resultado em uma variável para utilizar no cálculo do preemptivo
-                }if (tempo_restante_processo < tempo_execucao_processo){ //quando já houve processamento de uma parte do processo
-                    tempo_espera_processo = tempo_atual - tempo_inicio_execucao - (tempo_execucao_processo - tempo_restante_processo);
+                int tempo_espera_processo = cloneProcessos2.get(indice_processo_execucao).tempo_espera;
+
+                if (chegou_processo ||ultimoprocesso!=cloneProcessos2.get(indice_processo_execucao).id){
+                    tempo_espera_processo = (tempo_atual - cloneProcessos2.get(indice_processo_execucao).tempo_chegada) - (cloneProcessos2.get(indice_processo_execucao).tempo_execucao-cloneProcessos2.get(indice_processo_execucao).tempo_restante);
                 }
 
-                cloneProcessos2.get(indice_processo_menor_tempo).tempo_espera = tempo_espera_processo > 0 ? tempo_espera_processo : 0;
+                cloneProcessos2.get(indice_processo_execucao).tempo_espera = tempo_espera_processo > 0 ? tempo_espera_processo : 0;
+                chegou_processo = false;
+                ultimoprocesso =  cloneProcessos2.get(indice_processo_execucao).id;
 
                 // Verifica se o processo foi concluído, diminui os processos restantes e passa para o próximo
-                if (tempo_restante_processo == 0) {
+                if (cloneProcessos2.get(indice_processo_execucao).tempo_restante == 0) {
                     processos_restantes--;
+                    chegou_processo = true;
                 }
             }
         }
@@ -223,7 +265,6 @@ public class Main {
         System.out.println("Estatísticas do tempo de espera:");
 
         imprime_stats(cloneProcessos2);
-
         //restabelecer o tempo restante = tempo execução para o próximo algoritmo que será executado
         for (Processo nProcesso : n_processos) {
             nProcesso.tempo_restante = nProcesso.tempo_execucao;
@@ -238,78 +279,100 @@ public class Main {
         for (int tempo_atual = 1; processos_restantes > 0; tempo_atual++) { //faz a contagem do tempo
 
             int maior_prioridade = 0;
-            int indice_processo_maior_prioridade = -1;
-            int tempo_inicio_execucao = 0;
+            int indice_processo_execucao = 0;
+            boolean chegou_processo = true;
+            int ultimoprocesso = -1;
+            boolean processo_em_execucao = false;
+
 
             //verifica se o processo já chegou e encontra o processo com a maior prioridade
             if (preemptivo){
-            for (int k = 0; k < cloneProcessos3.size(); k++) { //percorre a lista de processos
-                if (cloneProcessos3.get(k).tempo_chegada <= tempo_atual && cloneProcessos3.get(k).prioridade > maior_prioridade && cloneProcessos3.get(k).tempo_restante > 0) { //verifica  se o processo já chegou
-                    maior_prioridade = cloneProcessos3.get(k).prioridade;
-                    indice_processo_maior_prioridade = k;
-                }
-            }
-            }else{ //não preemptivo
                 for (int k = 0; k < cloneProcessos3.size(); k++) { //percorre a lista de processos
                     if (cloneProcessos3.get(k).tempo_chegada <= tempo_atual && cloneProcessos3.get(k).prioridade > maior_prioridade && cloneProcessos3.get(k).tempo_restante > 0) { //verifica  se o processo já chegou
-                        if (cloneProcessos3.get(k).tempo_execucao > cloneProcessos3.get(k).tempo_restante) {
-                            break;
-                        } else{
-                            maior_prioridade = cloneProcessos3.get(k).prioridade;
-                            indice_processo_maior_prioridade = k;
+                        maior_prioridade = cloneProcessos3.get(k).prioridade;
+                        indice_processo_execucao = k;
+                        processo_em_execucao = true;
+                    }
+                }
+            }else { //não preemptivo
+
+                //ordenar os processos por menor tempo de chegada
+                for (int k = 0; k < cloneProcessos3.size() - 1; k++) { //percorre a lista de processos
+                    for (int l = 0; l < cloneProcessos3.size() - k - 1; l++) {
+                        if (cloneProcessos3.get(l).tempo_chegada > cloneProcessos3.get(l + 1).tempo_chegada) {
+                            Processo temp = cloneProcessos3.get(l);
+                            cloneProcessos3.set(l, cloneProcessos3.get(l + 1));
+                            cloneProcessos3.set(l + 1, temp);
                         }
+
+                    }
+                }
+                //se o tempo de chegada é igual, ordena por maior prioridade
+                for (int k = 0; k < cloneProcessos3.size() - 1; k++) { //percorre a lista de processos
+                    for (int l = 0; l < cloneProcessos3.size() - k - 1; l++) {
+                        if (cloneProcessos3.get(l).tempo_chegada == cloneProcessos3.get(l + 1).tempo_chegada && cloneProcessos3.get(l).prioridade < cloneProcessos3.get(l + 1).prioridade) {
+                            Processo temp = cloneProcessos3.get(l);
+                            cloneProcessos3.set(l, cloneProcessos3.get(l + 1));
+                            cloneProcessos3.set(l + 1, temp);
+                        }
+                    }
+                }
+                //executa os processsos na ordem
+                if (cloneProcessos3.get(indice_processo_execucao).tempo_chegada <= tempo_atual && cloneProcessos3.get(indice_processo_execucao).tempo_restante > 0 ){
+                    processo_em_execucao = true;
+                }
+
+                for (int k = 0; k < cloneProcessos3.size(); k++) { //percorre a lista de processos
+                    if (cloneProcessos3.get(k).tempo_chegada <= tempo_atual && cloneProcessos3.get(k).tempo_restante > 0 && cloneProcessos3.get(indice_processo_execucao).tempo_restante == 0) { //verifica  se o processo já chegou e se o de maior prioridade já terminou
+                        indice_processo_execucao = k;
+                        processo_em_execucao = true;
+                        break;
                     }
                 }
             }
 
             //se o primeiro processo a ser processado ainda não chegou
-                if (indice_processo_maior_prioridade == -1) {
-                    System.out.println("tempo[" + tempo_atual + "]: nenhum processo 1está pronto");
+            if (processo_em_execucao == false) {
+                System.out.println("tempo[" + tempo_atual + "]: nenhum processo está pronto");
 
-                } else {
-                    // Executa o processo com maior prioridade e diminui uma unidade de tempo restante
-                    int tempo_execucao_processo = cloneProcessos3.get(indice_processo_maior_prioridade).tempo_execucao;
-                    int tempo_restante_processo = cloneProcessos3.get(indice_processo_maior_prioridade).tempo_restante;
-                    int tempo_espera_processo = cloneProcessos3.get(indice_processo_maior_prioridade).tempo_espera;
-                    int tempo_chegada_processo = cloneProcessos3.get(indice_processo_maior_prioridade).tempo_chegada;
+            } else {
+                // Executa o processo com maior prioridade e diminui uma unidade de tempo restante
+                // Executa o processo com menor tempo de execução e diminui uma unidade de tempo restante
+                System.out.println("tempo[" + tempo_atual + "]: processo[" + cloneProcessos3.get(indice_processo_execucao).id + "] restante=" + cloneProcessos3.get(indice_processo_execucao).tempo_restante);
 
-                    tempo_restante_processo--;
+                cloneProcessos3.get(indice_processo_execucao).tempo_restante -= 1;
 
-                    System.out.println("tempo[" + tempo_atual + "]: processo[" + indice_processo_maior_prioridade + "] restante=" + tempo_restante_processo);
-                    cloneProcessos3.get(indice_processo_maior_prioridade).tempo_restante = tempo_restante_processo;
+                // calcular o tempo de espera
+                int tempo_espera_processo = cloneProcessos3.get(indice_processo_execucao).tempo_espera;
 
-                    // calcular o tempo de espera
-                    if (tempo_execucao_processo == tempo_restante_processo) { //quando o processo começa a ser processado (para o prioridade não preemptivo)
-                        tempo_espera_processo = tempo_atual - tempo_chegada_processo;
-                        tempo_inicio_execucao = tempo_espera_processo; //guardei o resultado em uma variável para utilizar no cálculo do preemptivo
-                    }
-                    if (tempo_restante_processo < tempo_execucao_processo) { //quando já houve processamento de uma parte do processo
-                        tempo_espera_processo = tempo_atual - tempo_inicio_execucao - (tempo_execucao_processo - tempo_restante_processo);
-                    }
-
-                    cloneProcessos3.get(indice_processo_maior_prioridade).tempo_espera = tempo_espera_processo > 0 ? tempo_espera_processo : 0;
-
-                    // Verifica se o processo foi concluído, diminui os processos restantes e passa para o próximo
-                    if (tempo_restante_processo == 0) {
-                        processos_restantes--;
-                    }
+                if (chegou_processo ||ultimoprocesso!=cloneProcessos3.get(indice_processo_execucao).id){
+                    tempo_espera_processo = (tempo_atual - cloneProcessos3.get(indice_processo_execucao).tempo_chegada) - (cloneProcessos3.get(indice_processo_execucao).tempo_execucao-cloneProcessos3.get(indice_processo_execucao).tempo_restante);
                 }
+
+                cloneProcessos3.get(indice_processo_execucao).tempo_espera = tempo_espera_processo > 0 ? tempo_espera_processo : 0;
+                chegou_processo = false;
+                ultimoprocesso =  cloneProcessos3.get(indice_processo_execucao).id;
+
+
+                // Verifica se o processo foi concluído, diminui os processos restantes e passa para o próximo
+                if (cloneProcessos3.get(indice_processo_execucao).tempo_restante == 0) {
+                    processos_restantes--;
+                }
+            }
         }
-            System.out.println();
-            System.out.println("Estatísticas do tempo de espera:");
+        System.out.println();
+        System.out.println("Estatísticas do tempo de espera:");
 
-            imprime_stats(cloneProcessos3);
+        imprime_stats(cloneProcessos3);
 
-            //restabelecer o tempo restante = tempo execução para o próximo algoritmo que será executado
+        //restabelecer o tempo restante = tempo execução para o próximo algoritmo que será executado
         for (Processo nProcesso : n_processos) {
             nProcesso.tempo_restante = nProcesso.tempo_execucao;
         }
     }
 
     public static void Round_Robin(){
-        //implementar código do Round-Robin
-        //...
-        //
-        //imprime_stats(tempo_espera);
+
+
     }
 }
