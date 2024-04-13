@@ -371,8 +371,40 @@ public class Main {
         }
     }
 
-    public static void Round_Robin(){
+    public static void Round_Robin() {
 
+        Scanner teclado = new Scanner(System.in);
 
+        ArrayList<Processo> cloneProcessos4 = (ArrayList) n_processos.clone(); //fiz um clone do Arraylist de processos
+
+        System.out.println("Digite o timeslice: ");
+        int timeslice = teclado.nextInt();
+
+        int t_processamento = timeslice;
+        int tempo_atual = 1;
+        int processos_restantes = n_processos.size();
+
+        while (processos_restantes > 0) {
+
+            for (int k = 0; k < cloneProcessos4.size(); k++) {
+
+                while (cloneProcessos4.get(k).tempo_restante > 0 && t_processamento > 0) {
+                    System.out.println("tempo[" + tempo_atual + "]: processo[" + cloneProcessos4.get(k).id + "] restante=" + cloneProcessos4.get(k).tempo_restante);
+                    cloneProcessos4.get(k).tempo_restante--;
+                    t_processamento--;
+                    tempo_atual++;
+                }
+                if ((t_processamento == 0) || (cloneProcessos4.get(k).tempo_restante == 0)) {
+                    t_processamento = timeslice;
+                    if (cloneProcessos4.get(k).tempo_restante == 0) { // Verifica se o processo foi concluído, diminui os processos restantes e passa para o próximo
+                        processos_restantes--;
+                    }
+                }
+            }
+        }
+        //restabelecer o tempo restante = tempo execução para o próximo algoritmo que será executado
+        for (Processo nProcesso : n_processos) {
+            nProcesso.tempo_restante = nProcesso.tempo_execucao;
+        }
     }
 }
