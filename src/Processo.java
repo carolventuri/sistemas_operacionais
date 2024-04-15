@@ -11,6 +11,7 @@ public class Processo {
         this.tempo_chegada = tempo_chegada;
         this.tempo_execucao = tempo_execucao;
         this.prioridade = prioridade;
+        this.tempo_restante = tempo_execucao;
     }
 
     public void setid(int z) {

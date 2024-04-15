@@ -20,20 +20,18 @@ public class Main {
         boolean continuarExecucao = true;
 
         while (continuarExecucao) {
-            System.out.println();
-            System.out.println("**********************************");
-            System.out.println("            Menu:");
-            System.out.println();
-            System.out.println("1 = Algoritmo FCFS");
-            System.out.println("2 = Algoritmo SJF Preemptivo");
-            System.out.println("3 = Algoritmo SJF Não Preemptivo");
-            System.out.println("4 = Algoritmo Prioridade Preemptivo");
-            System.out.println("5 = Algoritmo Prioridade Não Preemptivo");
-            System.out.println("6 = Algoritmo Round_Robin");
-            System.out.println("7 = Imprime lista de processos");
-            System.out.println("8 = Popular processos novamente");
-            System.out.println("9 = Sair");
-            System.out.println();
+
+            System.out.println ("\n**********************************\n" +
+                    "            Menu:\n\n" +
+                    "1 = Algoritmo FCFS\n" +
+                    "2 = Algoritmo SJF Preemptivo\n" +
+                    "3 = Algoritmo SJF Não Preemptivo\n" +
+                    "4 = Algoritmo Prioridade Preemptivo\n" +
+                    "5 = Algoritmo Prioridade Não Preemptivo\n" +
+                    "6 = Algoritmo Round_Robin\n" +
+                    "7 = Imprime lista de processos\n" +
+                    "8 = Popular processos novamente\n" +
+                    "9 = Sair\n\n");
 
             System.out.println("Escolha um número entre as opções do menu:");
             alg = teclado.nextInt();
@@ -95,25 +93,28 @@ public class Main {
         System.out.println("A população de processos erá aleatória? 1 = sim, 2 = não");
 
         aleatorio = teclado.nextInt();
-        int z = 0;
-        for (int i = 0; i < 3; i++) {
-            //Popular Processos Aleatorio
-            if (aleatorio == 1) {
-                n_processos.add(new Processo(random.nextInt(10) + 1, random.nextInt(10) + 1, random.nextInt(15) + 1));
-                n_processos.get(i).setid(z);
-                z++;
 
+
+        //Popular Processos Aleatorio
+        if (aleatorio == 1) {
+            for (int i = 0; i < 3; i++){
+                n_processos.add(new Processo(random.nextInt(10) + 1, random.nextInt(10) + 1, random.nextInt(15) + 1));
+                n_processos.get(i).setid(i);
             }
-            //Popular Processos Manual
-            else {
-                System.out.print("Digite o tempo de execução do processo[" + i + "]:  ");
-                n_processos.get(i).tempo_execucao = teclado.nextInt();
+        }
+        //Popular Processos Manual
+        else {
+            for (int i = 0; i < 3; i++) {
                 System.out.print("Digite o tempo de chegada do processo[" + i + "]:  ");
-                n_processos.get(i).tempo_chegada = teclado.nextInt();
+                int tempo_chegada = teclado.nextInt();
+                System.out.print("Digite o tempo de execução do processo[" + i + "]:  ");
+                int tempo_execucao = teclado.nextInt();
                 System.out.print("Digite a prioridade do processo[" + i + "]:  ");
-                n_processos.get(i).prioridade = teclado.nextInt();
+                int prioridade = teclado.nextInt();
+
+                n_processos.add(new Processo(tempo_chegada, tempo_execucao, prioridade));
+                n_processos.get(i).setid(i);
             }
-            n_processos.get(i).tempo_restante = n_processos.get(i).tempo_execucao;
         }
     }
 
@@ -339,7 +340,7 @@ public class Main {
                 // calcular o tempo de espera
                 int tempo_espera_processo = cloneProcessos3.get(indice_processo_execucao).tempo_espera;
 
-                if (chegou_processo ||ultimoprocesso!=cloneProcessos3.get(indice_processo_execucao).id){
+                if (chegou_processo || ultimoprocesso!=cloneProcessos3.get(indice_processo_execucao).id){
                     tempo_espera_processo = (tempo_atual - cloneProcessos3.get(indice_processo_execucao).tempo_chegada) - (cloneProcessos3.get(indice_processo_execucao).tempo_execucao-cloneProcessos3.get(indice_processo_execucao).tempo_restante);
                 }
 
