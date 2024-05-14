@@ -378,23 +378,23 @@ public class Main {
         System.out.println("Digite o timeslice: ");
         int timeslice = teclado.nextInt();
 
-        int t_processamento = timeslice;
+
         int tempo_atual = 1;
-        int processos_restantes = n_processos.size();
+        int processos_restantes = cloneProcessos4.size();
 
         while (processos_restantes > 0) {
 
             for (int k = 0; k < cloneProcessos4.size(); k++) {
+
+                int t_processamento = timeslice;
 
                 while (cloneProcessos4.get(k).tempo_restante > 0 && t_processamento > 0) {
                     System.out.println("tempo[" + tempo_atual + "]: processo[" + cloneProcessos4.get(k).id + "] restante=" + cloneProcessos4.get(k).tempo_restante);
                     cloneProcessos4.get(k).tempo_restante--;
                     t_processamento--;
                     tempo_atual++;
-                }
-                if ((t_processamento == 0) || (cloneProcessos4.get(k).tempo_restante == 0)) {
-                    t_processamento = timeslice;
-                    if (cloneProcessos4.get(k).tempo_restante == 0) { // Verifica se o processo foi concluído, diminui os processos restantes e passa para o próximo
+
+                    if (cloneProcessos4.get(k).tempo_restante == 0) { // Verifica se o processo foi concluído, diminui os processos restantes
                         processos_restantes--;
                     }
                 }
